@@ -1,0 +1,16 @@
+services:
+  - type: cron
+    name: terminland-watcher
+    env: docker
+    schedule: "*/30 * * * *"
+    dockerfilePath: ./Dockerfile
+    startCommand: "python -m src.main --config config.yaml check-once"
+    envVars:
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: TEST_EMAIL
+        value: "0"

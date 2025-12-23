@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "terminland-watcher"
+version = "0.1.0"
+description = "Terminland appointment watcher for DAA Muenchen Deutschkurse"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{ include = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+playwright = "^1.48.0"
+PyYAML = "^6.0.2"
+python-dotenv = "^1.0.1"
+psycopg = {version = "^3.2.3", extras = ["binary"]}
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

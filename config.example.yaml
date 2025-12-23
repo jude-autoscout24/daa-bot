@@ -1,0 +1,36 @@
+target:
+  url: "https://www.terminland.de/DAAMuenchenDeutschkurse/"
+  mode: "playwright"
+matchers:
+  unavailable_text_substrings:
+    - "keine freien Termine"
+    - "keine freien termine"
+schedule:
+  interval_seconds: 420
+  jitter_percent: 20
+limits:
+  max_checks_per_hour: 12
+  navigation_timeout_ms: 30000
+  selector_timeout_ms: 15000
+  backoff_base_seconds: 60
+  max_backoff_seconds: 900
+  blocked_cooldown_hours: 12
+notify:
+  on_available: true
+  on_change: false
+  email:
+    smtp_host: "smtp.gmail.com"
+    smtp_port: 587
+    use_tls: true
+    from: "YOUR_GMAIL@gmail.com"
+    to: "YOUR_EMAIL@gmail.com"
+    username_env: "SMTP_USER"
+    password_env: "SMTP_PASS"
+    max_slots_in_email: 10
+storage:
+  sqlite_path: "./data/state.db"
+  postgres_url_env: "DATABASE_URL"
+runtime:
+  headless: true
+  screenshots_dir: "./data/screenshots"
+  html_dir: "./data/html"
