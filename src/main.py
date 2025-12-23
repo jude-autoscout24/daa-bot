@@ -5,7 +5,7 @@ import os
 
 from .config import load_config
 from .notifier_email import send_notification
-from .scheduler import run_loop, run_once
+from .scheduler import run_loop, run_once, run_once_and_store
 from .util import iso_now, normalize_slots
 
 
@@ -21,7 +21,12 @@ def main() -> int:
     parser.add_argument("--config", required=True, help="Path to config.yaml")
 
     subparsers = parser.add_subparsers(dest="command", required=True)
-    subparsers.add_parser("check-once", help="Run a single check")
+    check_once_parser = subparsers.add_parser("check-once", help="Run a single check")
+    check_once_parser.add_argument(
+        "--store",
+        action="store_true",
+        help="Persist result and notifications",
+    )
     subparsers.add_parser("run", help="Run forever with scheduling")
 
     args = parser.parse_args()
@@ -41,7 +46,10 @@ def main() -> int:
         return 0
 
     if args.command == "check-once":
-        result = run_once(config)
+        if args.store:
+            result = run_once_and_store(config)
+        else:
+            result = run_once(config)
         result["slots"] = normalize_slots(result.get("slots") or [])
         print(json.dumps(result, sort_keys=True))
         if result["status"] == "blocked":

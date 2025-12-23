@@ -4,7 +4,7 @@ services:
     env: docker
     schedule: "*/30 * * * *"
     dockerfilePath: ./Dockerfile
-    startCommand: "python -m src.main --config config.yaml check-once"
+    startCommand: "python -m src.main --config config.yaml check-once --store"
     envVars:
       - key: SMTP_USER
         sync: false

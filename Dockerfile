@@ -11,4 +11,4 @@ COPY config.example.yaml /app/config.example.yaml
 COPY config.yaml /app/config.yaml
 COPY README.md /app/README.md
 
-CMD ["python", "-m", "src.main", "--config", "config.yaml", "check-once"]
+CMD ["python", "-m", "src.main", "--config", "config.yaml", "check-once", "--store"]

@@ -33,19 +33,25 @@ cp .env.example .env
 Single check (prints normalized JSON):
 
 ```bash
-python -m src.main check-once --config config.yaml
+python -m src.main --config config.yaml check-once
+```
+
+Single check with DB persistence and notifications:
+
+```bash
+python -m src.main --config config.yaml check-once --store
 ```
 
 Run forever with scheduler/backoff:
 
 ```bash
-python -m src.main run --config config.yaml
+python -m src.main --config config.yaml run
 ```
 
 Test email (sends once and exits):
 
 ```bash
-TEST_EMAIL=1 python -m src.main check-once --config config.yaml
+TEST_EMAIL=1 python -m src.main --config config.yaml check-once
 ```
 
 Artifacts:

@@ -16,7 +16,7 @@ from .store import (
     serialize_slots,
     set_state,
 )
-from .util import hash_json, jittered_interval, normalize_slots
+from .util import hash_json, iso_now, jittered_interval, normalize_slots
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +30,67 @@ def run_once(config: Dict[str, Any]) -> Dict[str, Any]:
             logger.warning("Endpoint checker failed, falling back to Playwright: %s", exc)
     return check_with_playwright(config)
 
+def run_once_and_store(config: Dict[str, Any]) -> Dict[str, Any]:
+    storage_cfg = config["storage"]
+    init_db(storage_cfg)
+
+    blocked_until = get_state(storage_cfg, "blocked_until")
+    if blocked_until:
+        try:
+            until_dt = datetime.fromisoformat(blocked_until)
+        except ValueError:
+            until_dt = None
+        if until_dt and datetime.now(timezone.utc) < until_dt:
+            blocked_payload = {
+                "status": "blocked",
+                "slots": [],
+                "evidence": {
+                    "url": config["target"]["url"],
+                    "blocked_until": blocked_until,
+                    "cooldown_active": True,
+                },
+            }
+            result = {
+                "status": "blocked",
+                "slots": [],
+                "checked_at": iso_now(),
+                "evidence": blocked_payload["evidence"],
+            }
+            result_hash = hash_json(blocked_payload)
+            insert_check(
+                storage_cfg,
+                result["checked_at"],
+                result["status"],
+                serialize_slots([]),
+                result_hash,
+                serialize_evidence(result["evidence"]),
+                None,
+            )
+            _handle_state_and_notifications(config, storage_cfg, result, result_hash)
+            return result
+
+    result = run_once(config)
+    normalized_slots = normalize_slots(result.get("slots") or [])
+    result["slots"] = normalized_slots
+
+    hash_payload = {
+        "status": result["status"],
+        "slots": normalized_slots,
+        "evidence": result.get("evidence", {}),
+    }
+    result_hash = hash_json(hash_payload)
+
+    insert_check(
+        storage_cfg,
+        result["checked_at"],
+        result["status"],
+        serialize_slots(normalized_slots),
+        result_hash,
+        serialize_evidence(result.get("evidence", {})),
+        result.get("error"),
+    )
+    _handle_state_and_notifications(config, storage_cfg, result, result_hash)
+    return result
 
 def run_loop(config: Dict[str, Any]) -> None:
     storage_cfg = config["storage"]
