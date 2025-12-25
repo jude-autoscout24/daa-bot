@@ -2,7 +2,7 @@ services:
   - type: cron
     name: terminland-watcher
     env: docker
-    schedule: "*/30 * * * *"
+    schedule: "0 * * * *"
     dockerfilePath: ./Dockerfile
     startCommand: "python -m src.main --config config.yaml check-once --store"
     envVars:
